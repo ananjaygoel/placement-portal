@@ -1,0 +1,22 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtualenv
+.venv/
+venv/
+
+# Flask instance folder (db/uploads/secrets)
+instance/*
+!instance/.gitkeep
+
+# SQLite
+*.sqlite3
+*.db
+
+# Editor
+.vscode/
+.idea/
+
