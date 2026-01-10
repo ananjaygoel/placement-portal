@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Login - Placement Portal{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <h1 class="h3 mb-3">Login</h1>
+
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          {{ form.email.label(class_="form-label") }}
+          {{ form.email(class_="form-control", placeholder="name@example.com") }}
+          {% for err in form.email.errors %}
+            <div class="text-danger small">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.password.label(class_="form-label") }}
+          {{ form.password(class_="form-control") }}
+          {% for err in form.password.errors %}
+            <div class="text-danger small">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="d-grid">
+          {{ form.submit(class_="btn btn-primary") }}
+        </div>
+      </form>
+
+      <hr class="my-4">
+      <p class="mb-1">New student? <a href="{{ url_for('auth.register_student') }}">Create a student account</a></p>
+      <p class="mb-0">New company? <a href="{{ url_for('auth.register_company') }}">Register your company</a></p>
+    </div>
+  </div>
+{% endblock %}
+

@@ -12,14 +12,35 @@
       <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.index') }}">Placement Portal</a>
         <div class="ms-auto">
-          <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.login') }}">Login</a>
+          {% if current_user.is_authenticated %}
+            {% if current_user.role == "admin" %}
+              <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+            {% elif current_user.role == "company" %}
+              <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('company.dashboard') }}">Dashboard</a>
+            {% elif current_user.role == "student" %}
+              <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('student.dashboard') }}">Dashboard</a>
+            {% endif %}
+            <a class="btn btn-warning btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+          {% else %}
+            <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('auth.login') }}">Login</a>
+            <a class="btn btn-light btn-sm" href="{{ url_for('auth.register_student') }}">Student Sign Up</a>
+          {% endif %}
         </div>
       </div>
     </nav>
 
     <main class="container py-4">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
       {% block content %}{% endblock %}
     </main>
   </body>
 </html>
-

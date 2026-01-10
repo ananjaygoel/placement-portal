@@ -25,14 +25,19 @@ def create_app(config_object: type[Config] = Config) -> Flask:
 
     app.register_blueprint(main_bp)
 
-    # Auth blueprint will be added in the next milestone.
-    # Keeping this import here avoids circular import issues later.
     from .auth.routes import bp as auth_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
+
+    from .admin.routes import bp as admin_bp
+    from .company.routes import bp as company_bp
+    from .student.routes import bp as student_bp
+
+    app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(company_bp, url_prefix="/company")
+    app.register_blueprint(student_bp, url_prefix="/student")
 
     # CLI
     app.cli.add_command(init_db_command)
 
     return app
-
