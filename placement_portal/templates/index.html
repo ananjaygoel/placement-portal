@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Home - Placement Portal{% endblock %}
+
+{% block content %}
+  <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-tertiary">
+    <div class="col-lg-8 px-0">
+      <h1 class="display-6">Placement Portal Application</h1>
+      <p class="lead my-3">
+        Admins approve companies and drives, companies create placement drives, and students apply and track status.
+      </p>
+      <p class="lead mb-0">
+        <a href="{{ url_for('auth.login') }}" class="text-body-emphasis fw-bold">Continue to login</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}
+
