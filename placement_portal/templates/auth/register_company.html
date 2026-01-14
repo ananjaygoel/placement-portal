@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Company Registration - Placement Portal{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="h3 mb-3">Register Company</h1>
+      <p class="text-muted">Company login is enabled only after admin approval.</p>
+
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form.email.label(class_="form-label") }}
+            {{ form.email(class_="form-control") }}
+            {% for err in form.email.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-6 mb-3">
+            {{ form.company_name.label(class_="form-label") }}
+            {{ form.company_name(class_="form-control") }}
+            {% for err in form.company_name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form.password.label(class_="form-label") }}
+            {{ form.password(class_="form-control") }}
+            {% for err in form.password.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-6 mb-3">
+            {{ form.confirm_password.label(class_="form-label") }}
+            {{ form.confirm_password(class_="form-control") }}
+            {% for err in form.confirm_password.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {{ form.industry.label(class_="form-label") }}
+            {{ form.industry(class_="form-control", placeholder="e.g. Software") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.hr_name.label(class_="form-label") }}
+            {{ form.hr_name(class_="form-control") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.hr_email.label(class_="form-label") }}
+            {{ form.hr_email(class_="form-control") }}
+            {% for err in form.hr_email.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {{ form.hr_phone.label(class_="form-label") }}
+            {{ form.hr_phone(class_="form-control") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.website.label(class_="form-label") }}
+            {{ form.website(class_="form-control") }}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          {{ form.description.label(class_="form-label") }}
+          {{ form.description(class_="form-control", rows="3") }}
+          {% for err in form.description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+        </div>
+
+        <div class="d-grid">
+          {{ form.submit(class_="btn btn-success") }}
+        </div>
+      </form>
+
+      <p class="mt-3 mb-0">Already registered? <a href="{{ url_for('auth.login') }}">Login</a></p>
+    </div>
+  </div>
+{% endblock %}
+
