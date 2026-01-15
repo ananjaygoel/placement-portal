@@ -26,7 +26,10 @@ class User(UserMixin, db.Model):
     student_profile = db.relationship("Student", back_populates="user", uselist=False)
 
     def set_password(self, password: str) -> None:
-        self.password_hash = generate_password_hash(password)
+        # Werkzeug >=3 defaults to scrypt, but some Python builds (notably the
+        # system Python on certain macOS setups) may not have hashlib.scrypt.
+        # PBKDF2 is widely supported and sufficient for this course project.
+        self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
