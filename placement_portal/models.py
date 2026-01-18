@@ -122,7 +122,7 @@ class Drive(db.Model):
 
     status = db.Column(
         db.String(20), nullable=False, default="pending", index=True
-    )  # pending/approved/closed
+    )  # pending/approved/rejected/closed
     is_deleted = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

@@ -2,7 +2,51 @@
 {% block title %}Admin Dashboard - Placement Portal{% endblock %}
 
 {% block content %}
-  <h1 class="h3">Admin Dashboard</h1>
-  <p class="text-muted mb-0">Coming next: approvals, search, and management.</p>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 mb-0">Admin Dashboard</h1>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.companies') }}">Manage Companies</a>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.students') }}">Manage Students</a>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.drives') }}">Manage Drives</a>
+      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.applications') }}">View Applications</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Students</div>
+          <div class="display-6">{{ total_students }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Companies</div>
+          <div class="display-6">{{ total_companies }}</div>
+          <div class="small text-muted">Pending: {{ pending_companies }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Placement Drives</div>
+          <div class="display-6">{{ total_drives }}</div>
+          <div class="small text-muted">Pending: {{ pending_drives }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Applications</div>
+          <div class="display-6">{{ total_applications }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 

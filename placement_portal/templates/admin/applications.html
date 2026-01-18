@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Applications - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h4 mb-0">Applications</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+  </div>
+
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md-11">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Search by app id, student, email, company, drive">
+    </div>
+    <div class="col-md-1 d-grid">
+      <button class="btn btn-primary">Go</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student</th>
+          <th>Company</th>
+          <th>Drive</th>
+          <th>Status</th>
+          <th>Applied</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in applications %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.student.full_name }} ({{ a.student.student_uid }})</td>
+            <td>{{ a.drive.company.company_name }}</td>
+            <td>{{ a.drive.job_title }}</td>
+            <td>{{ a.status }}</td>
+            <td>{{ a.application_date.strftime("%Y-%m-%d %H:%M") }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">No applications found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
