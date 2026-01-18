@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Manage Drives - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h4 mb-0">Placement Drives</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+  </div>
+
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md-8">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Search by drive id, title, company">
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" name="status">
+        <option value="" {% if not status %}selected{% endif %}>All statuses</option>
+        <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status == "approved" %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if status == "rejected" %}selected{% endif %}>Rejected</option>
+        <option value="closed" {% if status == "closed" %}selected{% endif %}>Closed</option>
+      </select>
+    </div>
+    <div class="col-md-1 d-grid">
+      <button class="btn btn-primary">Go</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Deadline</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in drives %}
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.company.company_name }}</td>
+            <td>{{ d.job_title }}</td>
+            <td>{{ d.status }}</td>
+            <td>{{ d.application_deadline or "-" }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                {% if d.status != "approved" %}
+                  <form method="post" action="{{ url_for('admin.approve_drive', drive_id=d.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-success btn-sm">Approve</button>
+                  </form>
+                {% endif %}
+                {% if d.status != "rejected" %}
+                  <form method="post" action="{{ url_for('admin.reject_drive', drive_id=d.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-warning btn-sm">Reject</button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">No drives found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
