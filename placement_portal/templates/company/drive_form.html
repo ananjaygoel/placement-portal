@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ "Create Drive" if mode == "create" else "Edit Drive" }} - Company{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h4 mb-0">{{ "Create Drive" if mode == "create" else "Edit Drive" }}</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('company.dashboard') }}">Back</a>
+  </div>
+
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.job_title.label(class_="form-label") }}
+      {{ form.job_title(class_="form-control") }}
+      {% for err in form.job_title.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.job_description.label(class_="form-label") }}
+      {{ form.job_description(class_="form-control", rows="4") }}
+      {% for err in form.job_description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.eligibility_criteria.label(class_="form-label") }}
+        {{ form.eligibility_criteria(class_="form-control", rows="3") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.required_skills.label(class_="form-label") }}
+        {{ form.required_skills(class_="form-control", rows="3") }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        {{ form.min_cgpa.label(class_="form-label") }}
+        {{ form.min_cgpa(class_="form-control") }}
+      </div>
+      <div class="col-md-3 mb-3">
+        {{ form.salary_min.label(class_="form-label") }}
+        {{ form.salary_min(class_="form-control") }}
+      </div>
+      <div class="col-md-3 mb-3">
+        {{ form.salary_max.label(class_="form-label") }}
+        {{ form.salary_max(class_="form-control") }}
+      </div>
+      <div class="col-md-3 mb-3">
+        {{ form.min_experience_years.label(class_="form-label") }}
+        {{ form.min_experience_years(class_="form-control") }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.location.label(class_="form-label") }}
+        {{ form.location(class_="form-control") }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.application_deadline.label(class_="form-label") }}
+        {{ form.application_deadline(class_="form-control") }}
+      </div>
+    </div>
+
+    <div class="d-grid">
+      {{ form.submit(class_="btn btn-success") }}
+    </div>
+  </form>
+{% endblock %}
+

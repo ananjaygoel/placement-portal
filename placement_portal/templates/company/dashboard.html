@@ -2,7 +2,65 @@
 {% block title %}Company Dashboard - Placement Portal{% endblock %}
 
 {% block content %}
-  <h1 class="h3">Company Dashboard</h1>
-  <p class="text-muted mb-0">Coming next: create drives and review applications.</p>
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 mb-0">Company Dashboard</h1>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('company.create_drive') }}">Post New Drive</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Deadline</th>
+          <th>Applicants</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in drives %}
+          <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.job_title }}</td>
+            <td>
+              {% if d.status == "approved" %}
+                <span class="badge bg-success">approved</span>
+              {% elif d.status == "pending" %}
+                <span class="badge bg-warning text-dark">pending</span>
+              {% elif d.status == "rejected" %}
+                <span class="badge bg-danger">rejected</span>
+              {% elif d.status == "closed" %}
+                <span class="badge bg-secondary">closed</span>
+              {% else %}
+                <span class="badge bg-light text-dark">{{ d.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ d.application_deadline or "-" }}</td>
+            <td>{{ applicant_counts.get(d.id, 0) }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                <a class="btn btn-outline-primary btn-sm" href="{{ url_for('company.drive_applications', drive_id=d.id) }}">Applications</a>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('company.edit_drive', drive_id=d.id) }}">Edit</a>
+                {% if d.status != "closed" %}
+                  <form method="post" action="{{ url_for('company.close_drive', drive_id=d.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-outline-warning btn-sm">Close</button>
+                  </form>
+                {% endif %}
+                <form method="post" action="{{ url_for('company.delete_drive', drive_id=d.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-outline-danger btn-sm">Remove</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">No drives yet. Create your first one.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}
 
