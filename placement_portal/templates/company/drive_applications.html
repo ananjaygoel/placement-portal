@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Applications - Company{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Applications</h1>
+      <div class="text-muted small">Drive #{{ drive.id }} - {{ drive.job_title }}</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('company.dashboard') }}">Back</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student</th>
+          <th>Student UID</th>
+          <th>Status</th>
+          <th>Applied</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in applications %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.student.full_name }}</td>
+            <td>{{ a.student.student_uid }}</td>
+            <td>{{ a.status }}</td>
+            <td>{{ a.application_date.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                {% if a.student.resume_path %}
+                  <a class="btn btn-outline-primary btn-sm" href="{{ url_for('files.student_resume', student_id=a.student.user_id) }}">Resume</a>
+                {% endif %}
+
+                <form method="post" action="{{ url_for('company.set_application_status', application_id=a.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="status" value="shortlisted">
+                  <button class="btn btn-success btn-sm">Shortlist</button>
+                </form>
+
+                <form method="post" action="{{ url_for('company.set_application_status', application_id=a.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="status" value="selected">
+                  <button class="btn btn-primary btn-sm">Select</button>
+                </form>
+
+                <form method="post" action="{{ url_for('company.set_application_status', application_id=a.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="status" value="rejected">
+                  <button class="btn btn-outline-danger btn-sm">Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">No applications yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
