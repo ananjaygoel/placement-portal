@@ -6,7 +6,7 @@ from sqlalchemy import func
 
 from ..decorators import roles_required
 from ..extensions import db
-from ..models import Application, Drive
+from ..models import Application, Drive, Notification
 from .forms import DriveForm
 
 bp = Blueprint("company", __name__)
@@ -160,7 +160,16 @@ def set_application_status(application_id: int):
         flash("Invalid status.", "danger")
         return redirect(url_for("company.drive_applications", drive_id=app.drive_id))
 
+    if app.status == status:
+        flash("Status is already set.", "info")
+        return redirect(url_for("company.drive_applications", drive_id=app.drive_id))
+
     app.status = status
+
+    msg = (
+        f"Application update: {app.drive.job_title} at {app.drive.company.company_name} is now '{status}'."
+    )
+    db.session.add(Notification(user_id=app.student_id, message=msg))
     db.session.commit()
     flash("Application status updated.", "success")
     return redirect(url_for("company.drive_applications", drive_id=app.drive_id))

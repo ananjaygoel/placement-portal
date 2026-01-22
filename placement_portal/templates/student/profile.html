@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Student{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h4 mb-0">My Profile</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('student.dashboard') }}">Back</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          {{ form.full_name.label(class_="form-label") }}
+          {{ form.full_name(class_="form-control") }}
+          {% for err in form.full_name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {{ form.degree.label(class_="form-label") }}
+            {{ form.degree(class_="form-control") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.department.label(class_="form-label") }}
+            {{ form.department(class_="form-control") }}
+          </div>
+          <div class="col-md-2 mb-3">
+            {{ form.graduation_year.label(class_="form-label") }}
+            {{ form.graduation_year(class_="form-control") }}
+          </div>
+          <div class="col-md-2 mb-3">
+            {{ form.cgpa.label(class_="form-label") }}
+            {{ form.cgpa(class_="form-control") }}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form.phone.label(class_="form-label") }}
+            {{ form.phone(class_="form-control") }}
+          </div>
+          <div class="col-md-6 mb-3">
+            {{ form.resume.label(class_="form-label") }}
+            {{ form.resume(class_="form-control") }}
+            {% for err in form.resume.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          {{ form.skills.label(class_="form-label") }}
+          {{ form.skills(class_="form-control", rows="3") }}
+        </div>
+
+        <div class="d-grid">
+          {{ form.submit(class_="btn btn-success") }}
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted small">Student UID</div>
+          <div class="fw-semibold">{{ student.student_uid }}</div>
+          <hr>
+          <div class="text-muted small">Email</div>
+          <div class="fw-semibold">{{ current_user.email }}</div>
+          <hr>
+          <div class="text-muted small">Resume</div>
+          {% if student.resume_path %}
+            <a class="btn btn-outline-primary btn-sm mt-1" href="{{ url_for('files.student_resume', student_id=student.user_id) }}">Download Resume</a>
+          {% else %}
+            <div class="text-muted">No resume uploaded.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
