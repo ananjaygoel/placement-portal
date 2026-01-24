@@ -107,5 +107,32 @@
       </table>
     </div>
   </div>
-{% endblock %}
 
+  <div class="mt-4">
+    <h2 class="h5">Placement History</h2>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Company</th>
+            <th>Drive</th>
+            <th>Placed On</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in placements %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.application.drive.company.company_name }}</td>
+              <td>{{ p.application.drive.job_title }}</td>
+              <td>{{ p.placed_on }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" class="text-muted">No placements yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

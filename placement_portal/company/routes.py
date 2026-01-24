@@ -6,18 +6,35 @@ from sqlalchemy import func
 
 from ..decorators import roles_required
 from ..extensions import db
-from ..models import Application, Drive, Notification
+from ..models import Application, Drive, Notification, Placement
 from .forms import DriveForm
 
 bp = Blueprint("company", __name__)
+
+
+def _require_company_access():
+    company = current_user.company_profile
+    if (
+        company is None
+        or company.approval_status != "approved"
+        or company.is_blacklisted
+        or not current_user.is_active
+    ):
+        return None
+    return company
 
 
 @bp.get("/")
 @login_required
 @roles_required("company")
 def dashboard():
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to access the dashboard.", "danger")
+        return redirect(url_for("auth.logout"))
+
     drives = (
-        Drive.query.filter_by(company_id=current_user.id, is_deleted=False)
+        Drive.query.filter_by(company_id=company.user_id, is_deleted=False)
         .order_by(Drive.created_at.desc())
         .all()
     )
@@ -40,10 +57,15 @@ def dashboard():
 @login_required
 @roles_required("company")
 def create_drive():
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to create drives.", "danger")
+        return redirect(url_for("auth.logout"))
+
     form = DriveForm()
     if form.validate_on_submit():
         drive = Drive(
-            company_id=current_user.id,
+            company_id=company.user_id,
             job_title=form.job_title.data.strip(),
             job_description=form.job_description.data.strip(),
             eligibility_criteria=(form.eligibility_criteria.data or "").strip() or None,
@@ -68,8 +90,13 @@ def create_drive():
 @login_required
 @roles_required("company")
 def edit_drive(drive_id: int):
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to manage drives.", "danger")
+        return redirect(url_for("auth.logout"))
+
     drive = Drive.query.get_or_404(drive_id)
-    if drive.company_id != current_user.id or drive.is_deleted:
+    if drive.company_id != company.user_id or drive.is_deleted:
         flash("Not allowed.", "danger")
         return redirect(url_for("company.dashboard"))
 
@@ -101,8 +128,13 @@ def edit_drive(drive_id: int):
 @login_required
 @roles_required("company")
 def close_drive(drive_id: int):
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to manage drives.", "danger")
+        return redirect(url_for("auth.logout"))
+
     drive = Drive.query.get_or_404(drive_id)
-    if drive.company_id != current_user.id or drive.is_deleted:
+    if drive.company_id != company.user_id or drive.is_deleted:
         flash("Not allowed.", "danger")
         return redirect(url_for("company.dashboard"))
 
@@ -116,8 +148,13 @@ def close_drive(drive_id: int):
 @login_required
 @roles_required("company")
 def delete_drive(drive_id: int):
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to manage drives.", "danger")
+        return redirect(url_for("auth.logout"))
+
     drive = Drive.query.get_or_404(drive_id)
-    if drive.company_id != current_user.id or drive.is_deleted:
+    if drive.company_id != company.user_id or drive.is_deleted:
         flash("Not allowed.", "danger")
         return redirect(url_for("company.dashboard"))
 
@@ -131,8 +168,13 @@ def delete_drive(drive_id: int):
 @login_required
 @roles_required("company")
 def drive_applications(drive_id: int):
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to view applications.", "danger")
+        return redirect(url_for("auth.logout"))
+
     drive = Drive.query.get_or_404(drive_id)
-    if drive.company_id != current_user.id or drive.is_deleted:
+    if drive.company_id != company.user_id or drive.is_deleted:
         flash("Not allowed.", "danger")
         return redirect(url_for("company.dashboard"))
 
@@ -150,8 +192,13 @@ def drive_applications(drive_id: int):
 @login_required
 @roles_required("company")
 def set_application_status(application_id: int):
+    company = _require_company_access()
+    if company is None:
+        flash("Company account is not allowed to update applications.", "danger")
+        return redirect(url_for("auth.logout"))
+
     app = Application.query.get_or_404(application_id)
-    if app.drive.company_id != current_user.id:
+    if app.drive.company_id != company.user_id:
         flash("Not allowed.", "danger")
         return redirect(url_for("company.dashboard"))
 
@@ -170,6 +217,10 @@ def set_application_status(application_id: int):
         f"Application update: {app.drive.job_title} at {app.drive.company.company_name} is now '{status}'."
     )
     db.session.add(Notification(user_id=app.student_id, message=msg))
+
+    if status == "selected" and app.placement is None:
+        # Create a placement record for history tracking (offer details can be extended later).
+        db.session.add(Placement(application_id=app.id))
     db.session.commit()
     flash("Application status updated.", "success")
     return redirect(url_for("company.drive_applications", drive_id=app.drive_id))
