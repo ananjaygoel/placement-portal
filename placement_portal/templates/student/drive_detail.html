@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Drive Details - Student{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">{{ drive.job_title }}</h1>
+      <div class="text-muted small">{{ drive.company.company_name }}</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('student.dashboard') }}">Back</a>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-md-4"><span class="text-muted">Deadline:</span> {{ drive.application_deadline or "-" }}</div>
+        <div class="col-md-4"><span class="text-muted">Location:</span> {{ drive.location or "-" }}</div>
+        <div class="col-md-4"><span class="text-muted">Min CGPA:</span> {{ drive.min_cgpa or "-" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="h6">Job Description</h2>
+  <p>{{ drive.job_description }}</p>
+
+  {% if drive.eligibility_criteria %}
+    <h2 class="h6">Eligibility</h2>
+    <p>{{ drive.eligibility_criteria }}</p>
+  {% endif %}
+
+  {% if drive.required_skills %}
+    <h2 class="h6">Required Skills</h2>
+    <p>{{ drive.required_skills }}</p>
+  {% endif %}
+
+  <div class="mt-4">
+    {% if existing %}
+      <span class="badge bg-success">Already applied ({{ existing.status }})</span>
+    {% else %}
+      <form method="post" action="{{ url_for('student.apply', drive_id=drive.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary">Apply</button>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}
+

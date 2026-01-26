@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     admin_profile = db.relationship("Admin", back_populates="user", uselist=False)
     company_profile = db.relationship("Company", back_populates="user", uselist=False)
     student_profile = db.relationship("Student", back_populates="user", uselist=False)
+    notifications = db.relationship("Notification", back_populates="user")
 
     def set_password(self, password: str) -> None:
         # Werkzeug >=3 defaults to scrypt, but some Python builds (notably the
@@ -174,6 +175,18 @@ class Placement(db.Model):
     placed_on = db.Column(db.Date, nullable=False, default=date.today)
 
     application = db.relationship("Application", back_populates="placement")
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, index=True)
+
+    user = db.relationship("User", back_populates="notifications")
 
 
 @login_manager.user_loader
