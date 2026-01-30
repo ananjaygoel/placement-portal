@@ -6,7 +6,7 @@ from sqlalchemy import or_
 
 from ..decorators import roles_required
 from ..extensions import db
-from ..models import Application, Company, Drive, Student, User
+from ..models import Application, Company, Drive, Placement, Student, User
 
 bp = Blueprint("admin", __name__)
 
@@ -19,6 +19,7 @@ def dashboard():
     total_companies = Company.query.count()
     total_drives = Drive.query.filter_by(is_deleted=False).count()
     total_applications = Application.query.count()
+    total_placements = Placement.query.count()
 
     pending_companies = Company.query.filter_by(approval_status="pending").count()
     pending_drives = Drive.query.filter_by(status="pending", is_deleted=False).count()
@@ -29,6 +30,7 @@ def dashboard():
         total_companies=total_companies,
         total_drives=total_drives,
         total_applications=total_applications,
+        total_placements=total_placements,
         pending_companies=pending_companies,
         pending_drives=pending_drives,
     )
@@ -224,3 +226,34 @@ def applications():
 
     items = query.order_by(Application.application_date.desc()).all()
     return render_template("admin/applications.html", applications=items, q=q)
+
+
+@bp.get("/placements")
+@login_required
+@roles_required("admin")
+def placements():
+    q = (request.args.get("q") or "").strip()
+
+    query = (
+        Placement.query.join(Application, Placement.application_id == Application.id)
+        .join(Student, Application.student_id == Student.user_id)
+        .join(User, Student.user_id == User.id)
+        .join(Drive, Application.drive_id == Drive.id)
+        .join(Company, Drive.company_id == Company.user_id)
+    )
+
+    if q:
+        like = f"%{q}%"
+        filters = [
+            User.email.ilike(like),
+            Student.full_name.ilike(like),
+            Student.student_uid.ilike(like),
+            Company.company_name.ilike(like),
+            Drive.job_title.ilike(like),
+        ]
+        if q.isdigit():
+            filters.append(Placement.id == int(q))
+        query = query.filter(or_(*filters))
+
+    items = query.order_by(Placement.placed_on.desc()).all()
+    return render_template("admin/placements.html", placements=items, q=q)

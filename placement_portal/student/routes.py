@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from ..decorators import roles_required
 from ..extensions import db
-from ..models import Application, Company, Drive, Notification, Student
+from ..models import Application, Company, Drive, Notification, Placement, Student
 from .forms import StudentProfileForm
 
 bp = Blueprint("student", __name__)
@@ -50,6 +50,13 @@ def dashboard():
     )
     applied_drive_ids = {a.drive_id for a in applications}
 
+    placements = (
+        Placement.query.join(Application, Placement.application_id == Application.id)
+        .filter(Application.student_id == current_user.id)
+        .order_by(Placement.placed_on.desc())
+        .all()
+    )
+
     notifications = (
         Notification.query.filter_by(user_id=current_user.id, is_read=False)
         .order_by(Notification.created_at.desc())
@@ -63,6 +70,7 @@ def dashboard():
         drives=drives,
         applications=applications,
         applied_drive_ids=applied_drive_ids,
+        placements=placements,
         notifications=notifications,
         today=date.today(),
     )

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Placements - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h4 mb-0">Placements</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+  </div>
+
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md-11">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Search by student, company, drive, email">
+    </div>
+    <div class="col-md-1 d-grid">
+      <button class="btn btn-primary">Go</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student</th>
+          <th>Company</th>
+          <th>Drive</th>
+          <th>Placed On</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in placements %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.application.student.full_name }} ({{ p.application.student.student_uid }})</td>
+            <td>{{ p.application.drive.company.company_name }}</td>
+            <td>{{ p.application.drive.job_title }}</td>
+            <td>{{ p.placed_on }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-muted">No placements found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
