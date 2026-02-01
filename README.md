@@ -29,3 +29,24 @@ You can override these with environment variables:
 - The SQLite database is created programmatically (no manual DB tools).
 - Core flows are implemented without JavaScript (except optional milestones).
 
+## API (JSON)
+
+APIs are available under `/api/*`. Auth uses the same users as the web app and
+relies on the Flask session cookie (no tokens).
+
+Example (login, then call an authenticated endpoint):
+
+```bash
+curl -c cookies.txt -X POST http://127.0.0.1:5000/api/session \\
+  -H 'Content-Type: application/json' \\
+  -d '{"email":"23f2001063@ds.study.iitm.ac.in","password":"IITMBS"}'
+
+curl -b cookies.txt http://127.0.0.1:5000/api/me
+```
+
+Key endpoints:
+- `POST /api/session`, `DELETE /api/session`
+- `GET /api/students`, `GET|PATCH /api/students/<id>`
+- `GET /api/companies`, `GET|PATCH /api/companies/<id>`
+- `GET /api/drives`, `POST|PATCH|DELETE /api/drives/<id>`
+- `GET|POST /api/applications`, `PATCH|DELETE /api/applications/<id>`
