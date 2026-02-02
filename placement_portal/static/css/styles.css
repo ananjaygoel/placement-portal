@@ -1,5 +1,99 @@
-/* Keep custom CSS minimal; Bootstrap does most styling. */
-body {
-  background: #f7f7f9;
+/* Visual direction: bright, campus-y, high contrast, minimal custom CSS on top of Bootstrap. */
+:root {
+  --pp-bg: #f6f4ef;
+  --pp-surface: #ffffff;
+  --pp-ink: #0b1220;
+  --pp-muted: rgba(11, 18, 32, 0.68);
+
+  --pp-accent: #0f766e; /* teal */
+  --pp-accent-2: #f59e0b; /* amber */
+
+  --pp-radius: 16px;
+  --pp-shadow: 0 10px 30px rgba(11, 18, 32, 0.10);
 }
 
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Space Grotesk", ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+  color: var(--pp-ink);
+  background:
+    radial-gradient(900px circle at 8% -10%, rgba(15, 118, 110, 0.16), transparent 55%),
+    radial-gradient(900px circle at 105% 0%, rgba(245, 158, 11, 0.14), transparent 55%),
+    linear-gradient(180deg, var(--pp-bg), #ffffff 55%, var(--pp-bg));
+}
+
+.pp-navbar {
+  background: rgba(11, 18, 32, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.pp-brand {
+  letter-spacing: 0.3px;
+  font-weight: 700;
+}
+
+.pp-page {
+  animation: pp-fade-up 420ms ease both;
+}
+
+@keyframes pp-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-page {
+    animation: none;
+  }
+}
+
+/* Card polish */
+.card {
+  border: 1px solid rgba(11, 18, 32, 0.06);
+  border-radius: var(--pp-radius);
+  box-shadow: var(--pp-shadow);
+}
+
+.card .card-body {
+  padding: 1rem;
+}
+
+/* Tables */
+.table {
+  --bs-table-bg: transparent;
+}
+
+.table > :not(caption) > * > * {
+  padding: 0.65rem 0.75rem;
+}
+
+.table-responsive {
+  border-radius: var(--pp-radius);
+}
+
+/* Alerts (without bootstrap JS dismiss buttons) */
+.alert {
+  border-radius: 14px;
+  border: 1px solid rgba(11, 18, 32, 0.06);
+}
+
+/* Small screens: reduce density */
+@media (max-width: 576px) {
+  .table > :not(caption) > * > * {
+    padding: 0.5rem 0.5rem;
+  }
+  .btn {
+    white-space: nowrap;
+  }
+}
