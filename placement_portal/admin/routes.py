@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 from sqlalchemy import or_
@@ -9,6 +11,19 @@ from ..extensions import db
 from ..models import Application, Company, Drive, Placement, Student, User
 
 bp = Blueprint("admin", __name__)
+
+
+def _redirect_next(default_url: str):
+    """Redirect back to a safe relative `next` URL (used after POST actions)."""
+    next_url = (request.form.get("next") or "").strip()
+    if not next_url:
+        return redirect(default_url)
+    parsed = urlparse(next_url)
+    if parsed.scheme or parsed.netloc:
+        return redirect(default_url)
+    if not next_url.startswith("/"):
+        return redirect(default_url)
+    return redirect(next_url)
 
 
 @bp.get("/")
@@ -75,7 +90,7 @@ def approve_company(company_id: int):
     company.approval_status = "approved"
     db.session.commit()
     flash("Company approved.", "success")
-    return redirect(url_for("admin.companies"))
+    return _redirect_next(url_for("admin.companies"))
 
 
 @bp.post("/companies/<int:company_id>/reject")
@@ -86,7 +101,7 @@ def reject_company(company_id: int):
     company.approval_status = "rejected"
     db.session.commit()
     flash("Company rejected.", "warning")
-    return redirect(url_for("admin.companies"))
+    return _redirect_next(url_for("admin.companies"))
 
 
 @bp.post("/companies/<int:company_id>/toggle-blacklist")
@@ -97,7 +112,7 @@ def toggle_company_blacklist(company_id: int):
     company.is_blacklisted = not company.is_blacklisted
     db.session.commit()
     flash("Company blacklist updated.", "info")
-    return redirect(url_for("admin.companies"))
+    return _redirect_next(url_for("admin.companies"))
 
 
 @bp.post("/companies/<int:company_id>/toggle-active")
@@ -108,7 +123,16 @@ def toggle_company_active(company_id: int):
     user.is_active = not user.is_active
     db.session.commit()
     flash("Company account active status updated.", "info")
-    return redirect(url_for("admin.companies"))
+    return _redirect_next(url_for("admin.companies"))
+
+
+@bp.get("/companies/<int:company_id>")
+@login_required
+@roles_required("admin")
+def company_detail(company_id: int):
+    company = Company.query.get_or_404(company_id)
+    drive_count = Drive.query.filter_by(company_id=company.user_id, is_deleted=False).count()
+    return render_template("admin/company_detail.html", company=company, drive_count=drive_count)
 
 
 @bp.get("/students")
@@ -190,7 +214,7 @@ def approve_drive(drive_id: int):
     drive.status = "approved"
     db.session.commit()
     flash("Drive approved.", "success")
-    return redirect(url_for("admin.drives"))
+    return _redirect_next(url_for("admin.drives"))
 
 
 @bp.post("/drives/<int:drive_id>/reject")
@@ -201,7 +225,18 @@ def reject_drive(drive_id: int):
     drive.status = "rejected"
     db.session.commit()
     flash("Drive rejected.", "warning")
-    return redirect(url_for("admin.drives"))
+    return _redirect_next(url_for("admin.drives"))
+
+
+@bp.get("/drives/<int:drive_id>")
+@login_required
+@roles_required("admin")
+def drive_detail(drive_id: int):
+    drive = Drive.query.get_or_404(drive_id)
+    application_count = Application.query.filter_by(drive_id=drive.id).count()
+    return render_template(
+        "admin/drive_detail.html", drive=drive, application_count=application_count
+    )
 
 
 @bp.get("/applications")

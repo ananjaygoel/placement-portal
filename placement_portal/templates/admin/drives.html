@@ -42,20 +42,32 @@
           <tr>
             <td>{{ d.id }}</td>
             <td>{{ d.company.company_name }}</td>
-            <td>{{ d.job_title }}</td>
+            <td>
+              <div class="fw-semibold">{{ d.job_title }}</div>
+              <div class="text-muted small">
+                {% if d.location %}{{ d.location }}{% else %}—{% endif %}
+                {% if d.salary_min or d.salary_max %}
+                  · Salary: {{ d.salary_min or "?" }}-{{ d.salary_max or "?" }} LPA
+                {% endif %}
+                {% if d.min_cgpa %} · Min CGPA: {{ d.min_cgpa }}{% endif %}
+              </div>
+            </td>
             <td>{{ d.status }}</td>
             <td>{{ d.application_deadline or "-" }}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-1">
+                <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.drive_detail', drive_id=d.id) }}">View</a>
                 {% if d.status != "approved" %}
                   <form method="post" action="{{ url_for('admin.approve_drive', drive_id=d.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button class="btn btn-success btn-sm">Approve</button>
                   </form>
                 {% endif %}
                 {% if d.status != "rejected" %}
                   <form method="post" action="{{ url_for('admin.reject_drive', drive_id=d.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button class="btn btn-warning btn-sm">Reject</button>
                   </form>
                 {% endif %}
@@ -69,4 +81,3 @@
     </table>
   </div>
 {% endblock %}
-

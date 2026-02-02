@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Drive Details - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">{{ drive.job_title }}</h1>
+      <div class="text-muted small">Drive ID: {{ drive.id }} · Company: {{ drive.company.company_name }}</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.drives') }}">Back</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h2 class="h6">Drive Summary</h2>
+          <div class="row g-2">
+            <div class="col-md-6"><span class="text-muted">Status:</span> {{ drive.status }}</div>
+            <div class="col-md-6"><span class="text-muted">Deadline:</span> {{ drive.application_deadline or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">Location:</span> {{ drive.location or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">Min CGPA:</span> {{ drive.min_cgpa or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">Experience:</span> {{ drive.min_experience_years if drive.min_experience_years is not none else "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">Salary (LPA):</span> {{ drive.salary_min or "?" }}-{{ drive.salary_max or "?" }}</div>
+            <div class="col-md-6"><span class="text-muted">Applications:</span> {{ application_count }}</div>
+            <div class="col-md-6"><span class="text-muted">Created:</span> {{ drive.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h6">Job Description</h2>
+          <p>{{ drive.job_description }}</p>
+
+          {% if drive.eligibility_criteria %}
+            <h3 class="h6">Eligibility Criteria</h3>
+            <p>{{ drive.eligibility_criteria }}</p>
+          {% endif %}
+
+          {% if drive.required_skills %}
+            <h3 class="h6">Required Skills</h3>
+            <p class="mb-0">{{ drive.required_skills }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h6">Company Context</h2>
+          <div class="text-muted small mb-2">{{ drive.company.user.email }}</div>
+          <div class="mb-3">
+            <div><span class="text-muted">Industry:</span> {{ drive.company.industry }}</div>
+            <div><span class="text-muted">Website:</span> {{ drive.company.website or "-" }}</div>
+            <div><span class="text-muted">HR:</span> {{ drive.company.hr_name or "-" }}</div>
+            <div class="text-muted small">{{ drive.company.hr_email or "" }} {% if drive.company.hr_phone %}· {{ drive.company.hr_phone }}{% endif %}</div>
+          </div>
+
+          <h2 class="h6">Actions</h2>
+          <div class="d-grid gap-2">
+            <form method="post" action="{{ url_for('admin.approve_drive', drive_id=drive.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-success" {% if drive.status == "approved" %}disabled{% endif %}>Approve</button>
+            </form>
+
+            <form method="post" action="{{ url_for('admin.reject_drive', drive_id=drive.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-warning" {% if drive.status == "rejected" %}disabled{% endif %}>Reject</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
