@@ -20,6 +20,8 @@ def create_app(config_object: type[Config] = Config) -> Flask:
 
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "info"
+    # Extra protection against session hijacking (OK for this course project).
+    login_manager.session_protection = "strong"
 
     from .main.routes import bp as main_bp
 
