@@ -30,11 +30,13 @@ def create_app(config_object: type[Config] = Config) -> Flask:
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
     from .admin.routes import bp as admin_bp
+    from .api.routes import bp as api_bp
     from .company.routes import bp as company_bp
     from .files.routes import bp as files_bp
     from .student.routes import bp as student_bp
 
     app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(api_bp, url_prefix="/api")
     app.register_blueprint(company_bp, url_prefix="/company")
     app.register_blueprint(files_bp, url_prefix="/files")
     app.register_blueprint(student_bp, url_prefix="/student")
