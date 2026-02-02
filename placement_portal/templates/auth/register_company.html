@@ -7,18 +7,18 @@
       <h1 class="h3 mb-3">Register Company</h1>
       <p class="text-muted">Company login is enabled only after admin approval.</p>
 
-      <form method="post" novalidate>
+      <form method="post">
         {{ form.hidden_tag() }}
 
         <div class="row">
           <div class="col-md-6 mb-3">
             {{ form.email.label(class_="form-label") }}
-            {{ form.email(class_="form-control") }}
+            {{ form.email(class_="form-control", type="email", required=True, maxlength="255") }}
             {% for err in form.email.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-6 mb-3">
             {{ form.company_name.label(class_="form-label") }}
-            {{ form.company_name(class_="form-control") }}
+            {{ form.company_name(class_="form-control", required=True, maxlength="200") }}
             {% for err in form.company_name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -26,12 +26,12 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             {{ form.password.label(class_="form-label") }}
-            {{ form.password(class_="form-control") }}
+            {{ form.password(class_="form-control", required=True, minlength="6", maxlength="128") }}
             {% for err in form.password.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-6 mb-3">
             {{ form.confirm_password.label(class_="form-label") }}
-            {{ form.confirm_password(class_="form-control") }}
+            {{ form.confirm_password(class_="form-control", required=True, minlength="6", maxlength="128") }}
             {% for err in form.confirm_password.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -47,7 +47,7 @@
           </div>
           <div class="col-md-4 mb-3">
             {{ form.hr_email.label(class_="form-label") }}
-            {{ form.hr_email(class_="form-control") }}
+            {{ form.hr_email(class_="form-control", type="email", maxlength="255") }}
             {% for err in form.hr_email.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -78,4 +78,3 @@
     </div>
   </div>
 {% endblock %}
-

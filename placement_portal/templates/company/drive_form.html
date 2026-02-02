@@ -7,18 +7,18 @@
     <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('company.dashboard') }}">Back</a>
   </div>
 
-  <form method="post" novalidate>
+  <form method="post">
     {{ form.hidden_tag() }}
 
     <div class="mb-3">
       {{ form.job_title.label(class_="form-label") }}
-      {{ form.job_title(class_="form-control") }}
+      {{ form.job_title(class_="form-control", required=True, maxlength="200") }}
       {% for err in form.job_title.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
     </div>
 
     <div class="mb-3">
       {{ form.job_description.label(class_="form-label") }}
-      {{ form.job_description(class_="form-control", rows="4") }}
+      {{ form.job_description(class_="form-control", rows="4", required=True) }}
       {% for err in form.job_description.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
     </div>
 
@@ -36,19 +36,23 @@
     <div class="row">
       <div class="col-md-3 mb-3">
         {{ form.min_cgpa.label(class_="form-label") }}
-        {{ form.min_cgpa(class_="form-control") }}
+        {{ form.min_cgpa(class_="form-control", min="0", max="10", step="0.01") }}
+        {% for err in form.min_cgpa.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
       </div>
       <div class="col-md-3 mb-3">
         {{ form.salary_min.label(class_="form-label") }}
-        {{ form.salary_min(class_="form-control") }}
+        {{ form.salary_min(class_="form-control", min="0") }}
+        {% for err in form.salary_min.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
       </div>
       <div class="col-md-3 mb-3">
         {{ form.salary_max.label(class_="form-label") }}
-        {{ form.salary_max(class_="form-control") }}
+        {{ form.salary_max(class_="form-control", min="0") }}
+        {% for err in form.salary_max.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
       </div>
       <div class="col-md-3 mb-3">
         {{ form.min_experience_years.label(class_="form-label") }}
-        {{ form.min_experience_years(class_="form-control") }}
+        {{ form.min_experience_years(class_="form-control", min="0", max="50") }}
+        {% for err in form.min_experience_years.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
       </div>
     </div>
 
@@ -60,6 +64,7 @@
       <div class="col-md-6 mb-3">
         {{ form.application_deadline.label(class_="form-label") }}
         {{ form.application_deadline(class_="form-control") }}
+        {% for err in form.application_deadline.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
       </div>
     </div>
 
@@ -69,3 +74,29 @@
   </form>
 {% endblock %}
 
+{% block scripts %}
+  <script>
+    (function () {
+      const form = document.querySelector('form');
+      if (!form) return;
+
+      const salaryMin = document.getElementById('{{ form.salary_min.id }}');
+      const salaryMax = document.getElementById('{{ form.salary_max.id }}');
+      if (!salaryMin || !salaryMax) return;
+
+      function validateSalaryRange() {
+        const min = salaryMin.value ? parseInt(salaryMin.value, 10) : null;
+        const max = salaryMax.value ? parseInt(salaryMax.value, 10) : null;
+        if (min !== null && max !== null && min > max) {
+          salaryMax.setCustomValidity('Salary max must be greater than or equal to salary min.');
+        } else {
+          salaryMax.setCustomValidity('');
+        }
+      }
+
+      salaryMin.addEventListener('input', validateSalaryRange);
+      salaryMax.addEventListener('input', validateSalaryRange);
+      form.addEventListener('submit', validateSalaryRange);
+    })();
+  </script>
+{% endblock %}
