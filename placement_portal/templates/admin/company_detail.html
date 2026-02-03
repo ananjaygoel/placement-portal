@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Company Details - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">{{ company.company_name }}</h1>
+      <div class="text-muted small">Company ID: {{ company.user_id }} · {{ company.industry }}</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.companies') }}">Back</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h6">Company Profile</h2>
+          <div class="row g-2">
+            <div class="col-md-6"><span class="text-muted">Login Email:</span> {{ company.user.email }}</div>
+            <div class="col-md-6"><span class="text-muted">Website:</span> {{ company.website or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">HR Name:</span> {{ company.hr_name or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">HR Email:</span> {{ company.hr_email or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">HR Phone:</span> {{ company.hr_phone or "-" }}</div>
+            <div class="col-md-6"><span class="text-muted">Drives Posted:</span> {{ drive_count }}</div>
+            <div class="col-md-6"><span class="text-muted">Approval Status:</span> {{ company.approval_status }}</div>
+            <div class="col-md-6"><span class="text-muted">Active:</span> {{ "Yes" if company.user.is_active else "No" }}</div>
+            <div class="col-md-6"><span class="text-muted">Blacklisted:</span> {{ "Yes" if company.is_blacklisted else "No" }}</div>
+            <div class="col-md-6"><span class="text-muted">Created:</span> {{ company.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+          </div>
+
+          {% if company.description %}
+            <hr>
+            <h3 class="h6">Description</h3>
+            <p class="mb-0">{{ company.description }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h6">Actions</h2>
+          <div class="d-grid gap-2">
+            <form method="post" action="{{ url_for('admin.approve_company', company_id=company.user_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-success" {% if company.approval_status == "approved" %}disabled{% endif %}>Approve</button>
+            </form>
+
+            <form method="post" action="{{ url_for('admin.reject_company', company_id=company.user_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-warning" {% if company.approval_status == "rejected" %}disabled{% endif %}>Reject</button>
+            </form>
+
+            <form method="post" action="{{ url_for('admin.toggle_company_blacklist', company_id=company.user_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-outline-danger">{{ "Unblacklist" if company.is_blacklisted else "Blacklist" }}</button>
+            </form>
+
+            <form method="post" action="{{ url_for('admin.toggle_company_active', company_id=company.user_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <button class="btn btn-outline-secondary">{{ "Deactivate" if company.user.is_active else "Activate" }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
