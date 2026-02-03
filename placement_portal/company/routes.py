@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date, datetime, timedelta
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func
@@ -50,7 +52,28 @@ def dashboard():
         )
         counts = {drive_id: count for drive_id, count in rows}
 
-    return render_template("company/dashboard.html", drives=drives, applicant_counts=counts)
+    # Trend: applications per day (last 30 days) across all drives of this company.
+    start_day = date.today() - timedelta(days=29)
+    start_dt = datetime.combine(start_day, datetime.min.time())
+
+    trend_rows = (
+        db.session.query(func.date(Application.application_date), func.count(Application.id))
+        .join(Drive, Application.drive_id == Drive.id)
+        .filter(Drive.company_id == company.user_id, Application.application_date >= start_dt)
+        .group_by(func.date(Application.application_date))
+        .all()
+    )
+    trend_map = {day: count for day, count in trend_rows}
+    trend_labels = [(start_day + timedelta(days=i)).isoformat() for i in range(30)]
+    trend_values = [int(trend_map.get(label, 0)) for label in trend_labels]
+
+    return render_template(
+        "company/dashboard.html",
+        drives=drives,
+        applicant_counts=counts,
+        trend_labels=trend_labels,
+        trend_values=trend_values,
+    )
 
 
 @bp.route("/drives/new", methods=["GET", "POST"])

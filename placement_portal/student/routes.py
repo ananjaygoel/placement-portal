@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import func
 from werkzeug.utils import secure_filename
 
 from ..decorators import roles_required
@@ -50,6 +51,16 @@ def dashboard():
     )
     applied_drive_ids = {a.drive_id for a in applications}
 
+    status_rows = (
+        db.session.query(Application.status, func.count(Application.id))
+        .filter(Application.student_id == current_user.id)
+        .group_by(Application.status)
+        .all()
+    )
+    status_map = {status: int(count) for status, count in status_rows}
+    status_labels = ["applied", "shortlisted", "selected", "rejected"]
+    status_values = [status_map.get(label, 0) for label in status_labels]
+
     placements = (
         Placement.query.join(Application, Placement.application_id == Application.id)
         .filter(Application.student_id == current_user.id)
@@ -72,6 +83,8 @@ def dashboard():
         applied_drive_ids=applied_drive_ids,
         placements=placements,
         notifications=notifications,
+        status_labels=status_labels,
+        status_values=status_values,
         today=date.today(),
     )
 

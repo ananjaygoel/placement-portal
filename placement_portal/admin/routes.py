@@ -24,6 +24,11 @@ def dashboard():
     pending_companies = Company.query.filter_by(approval_status="pending").count()
     pending_drives = Drive.query.filter_by(status="pending", is_deleted=False).count()
 
+    admin_overview = {
+        "labels": ["Drives", "Applications", "Placements"],
+        "values": [total_drives, total_applications, total_placements],
+    }
+
     return render_template(
         "admin/dashboard.html",
         total_students=total_students,
@@ -33,6 +38,7 @@ def dashboard():
         total_placements=total_placements,
         pending_companies=pending_companies,
         pending_drives=pending_drives,
+        admin_overview=admin_overview,
     )
 
 

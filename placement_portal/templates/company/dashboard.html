@@ -7,6 +7,17 @@
     <a class="btn btn-primary btn-sm" href="{{ url_for('company.create_drive') }}">Post New Drive</a>
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Applications Trend (Last 30 Days)</h2>
+          <canvas id="companyTrendChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="table-responsive">
     <table class="table table-sm align-middle">
       <thead>
@@ -64,3 +75,36 @@
   </div>
 {% endblock %}
 
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    (function () {
+      const labels = {{ trend_labels | tojson }};
+      const values = {{ trend_values | tojson }};
+
+      const el = document.getElementById('companyTrendChart');
+      if (!el) return;
+
+      new Chart(el, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Applications',
+            data: values,
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.15)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    })();
+  </script>
+{% endblock %}
