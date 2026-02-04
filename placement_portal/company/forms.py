@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask_wtf import FlaskForm
 from wtforms import (
     DateField,
@@ -7,7 +9,7 @@ from wtforms import (
     SubmitField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Length, NumberRange, Optional
+from wtforms.validators import DataRequired, Length, NumberRange, Optional, ValidationError
 
 
 class DriveForm(FlaskForm):
@@ -31,3 +33,11 @@ class DriveForm(FlaskForm):
 
     submit = SubmitField("Save")
 
+    def validate_salary_max(self, field):
+        if self.salary_min.data is not None and field.data is not None:
+            if field.data < self.salary_min.data:
+                raise ValidationError("Salary max must be greater than or equal to salary min.")
+
+    def validate_application_deadline(self, field):
+        if field.data is not None and field.data < date.today():
+            raise ValidationError("Application deadline cannot be in the past.")

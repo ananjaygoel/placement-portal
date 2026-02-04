@@ -43,10 +43,10 @@ def _ok(data=None, status: int = 200):
     return jsonify(payload), status
 
 
-def _require_company_ok(company: Company | None) -> None:
+def _require_company_ok(user: User, company: Company | None) -> None:
     if company is None:
         abort(403, description="Company profile missing.")
-    if not current_user.is_active:
+    if not user.is_active:
         abort(403, description="Account is deactivated.")
     if company.is_blacklisted:
         abort(403, description="Company is blacklisted.")
@@ -79,7 +79,7 @@ def create_session():
         abort(403, description="Account is deactivated.")
 
     if user.role == "company":
-        _require_company_ok(user.company_profile)
+        _require_company_ok(user, user.company_profile)
 
     if user.role == "student":
         student = user.student_profile
@@ -320,7 +320,7 @@ def list_drives():
 @roles_required("company")
 def create_drive():
     company = current_user.company_profile
-    _require_company_ok(company)
+    _require_company_ok(current_user, company)
 
     data = _json()
     title = (data.get("job_title") or "").strip()
@@ -336,6 +336,24 @@ def create_drive():
             deadline_dt = date.fromisoformat(str(deadline))
         except ValueError:
             abort(400, description="application_deadline must be YYYY-MM-DD.")
+        if deadline_dt < date.today():
+            abort(400, description="application_deadline cannot be in the past.")
+
+    salary_min = None
+    salary_max = None
+    if data.get("salary_min") is not None:
+        try:
+            salary_min = int(data.get("salary_min"))
+        except (TypeError, ValueError):
+            abort(400, description="salary_min must be an integer.")
+    if data.get("salary_max") is not None:
+        try:
+            salary_max = int(data.get("salary_max"))
+        except (TypeError, ValueError):
+            abort(400, description="salary_max must be an integer.")
+
+    if salary_min is not None and salary_max is not None and salary_min > salary_max:
+        abort(400, description="salary_max must be greater than or equal to salary_min.")
 
     drive = Drive(
         company_id=current_user.id,
@@ -344,8 +362,8 @@ def create_drive():
         eligibility_criteria=(data.get("eligibility_criteria") or "").strip() or None,
         required_skills=(data.get("required_skills") or "").strip() or None,
         min_cgpa=data.get("min_cgpa"),
-        salary_min=data.get("salary_min"),
-        salary_max=data.get("salary_max"),
+        salary_min=salary_min,
+        salary_max=salary_max,
         location=(data.get("location") or "").strip() or None,
         min_experience_years=data.get("min_experience_years"),
         application_deadline=deadline_dt,
@@ -364,7 +382,7 @@ def update_drive(drive_id: int):
 
     if current_user.role == "company":
         company = current_user.company_profile
-        _require_company_ok(company)
+        _require_company_ok(current_user, company)
         if drive.company_id != current_user.id:
             abort(403, description="Not allowed.")
 
@@ -385,19 +403,36 @@ def update_drive(drive_id: int):
                 abort(400, description="job_description cannot be empty.")
             drive.job_description = desc
 
-        for key in ["min_cgpa", "salary_min", "salary_max", "min_experience_years"]:
+        if "min_cgpa" in data:
+            drive.min_cgpa = data.get("min_cgpa")
+
+        for key in ["salary_min", "salary_max", "min_experience_years"]:
             if key in data:
-                setattr(drive, key, data.get(key))
+                raw = data.get(key)
+                if raw is None or raw == "":
+                    setattr(drive, key, None)
+                else:
+                    try:
+                        setattr(drive, key, int(raw))
+                    except (TypeError, ValueError):
+                        abort(400, description=f"{key} must be an integer.")
 
         if "application_deadline" in data:
             deadline = data.get("application_deadline")
             if deadline:
                 try:
-                    drive.application_deadline = date.fromisoformat(str(deadline))
+                    parsed = date.fromisoformat(str(deadline))
                 except ValueError:
                     abort(400, description="application_deadline must be YYYY-MM-DD.")
+                if parsed < date.today():
+                    abort(400, description="application_deadline cannot be in the past.")
+                drive.application_deadline = parsed
             else:
                 drive.application_deadline = None
+
+        if drive.salary_min is not None and drive.salary_max is not None:
+            if drive.salary_min > drive.salary_max:
+                abort(400, description="salary_max must be greater than or equal to salary_min.")
 
         if "status" in data:
             status = (data.get("status") or "").strip().lower()
@@ -426,7 +461,7 @@ def update_drive(drive_id: int):
 def delete_drive(drive_id: int):
     drive = Drive.query.get_or_404(drive_id)
     company = current_user.company_profile
-    _require_company_ok(company)
+    _require_company_ok(current_user, company)
     if drive.company_id != current_user.id:
         abort(403, description="Not allowed.")
     drive.is_deleted = True
@@ -452,7 +487,7 @@ def list_applications():
         pass
     elif current_user.role == "company":
         company = current_user.company_profile
-        _require_company_ok(company)
+        _require_company_ok(current_user, company)
         query = query.filter(Drive.company_id == current_user.id)
     else:
         query = query.filter(Application.student_id == current_user.id)
@@ -476,7 +511,7 @@ def get_application(application_id: int):
         pass
     elif current_user.role == "company":
         company = current_user.company_profile
-        _require_company_ok(company)
+        _require_company_ok(current_user, company)
         if app.drive.company_id != current_user.id:
             abort(403, description="Not allowed.")
     else:
@@ -522,7 +557,7 @@ def update_application(application_id: int):
     app = Application.query.get_or_404(application_id)
     if current_user.role == "company":
         company = current_user.company_profile
-        _require_company_ok(company)
+        _require_company_ok(current_user, company)
         if app.drive.company_id != current_user.id:
             abort(403, description="Not allowed.")
 

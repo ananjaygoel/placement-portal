@@ -6,12 +6,12 @@
     <div class="col-md-6 col-lg-5">
       <h1 class="h3 mb-3">Login</h1>
 
-      <form method="post" novalidate>
+      <form method="post">
         {{ form.hidden_tag() }}
 
         <div class="mb-3">
           {{ form.email.label(class_="form-label") }}
-          {{ form.email(class_="form-control", placeholder="name@example.com") }}
+          {{ form.email(class_="form-control", type="email", placeholder="name@example.com", required=True, maxlength="255") }}
           {% for err in form.email.errors %}
             <div class="text-danger small">{{ err }}</div>
           {% endfor %}
@@ -19,7 +19,7 @@
 
         <div class="mb-3">
           {{ form.password.label(class_="form-label") }}
-          {{ form.password(class_="form-control") }}
+          {{ form.password(class_="form-control", required=True, minlength="6", maxlength="128") }}
           {% for err in form.password.errors %}
             <div class="text-danger small">{{ err }}</div>
           {% endfor %}
@@ -36,4 +36,3 @@
     </div>
   </div>
 {% endblock %}
-

@@ -9,12 +9,12 @@
 
   <div class="row g-3">
     <div class="col-lg-8">
-      <form method="post" enctype="multipart/form-data" novalidate>
+      <form method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
         <div class="mb-3">
           {{ form.full_name.label(class_="form-label") }}
-          {{ form.full_name(class_="form-control") }}
+          {{ form.full_name(class_="form-control", required=True, maxlength="200") }}
           {% for err in form.full_name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
         </div>
 
@@ -29,11 +29,13 @@
           </div>
           <div class="col-md-2 mb-3">
             {{ form.graduation_year.label(class_="form-label") }}
-            {{ form.graduation_year(class_="form-control") }}
+            {{ form.graduation_year(class_="form-control", min="1900", max="2100") }}
+            {% for err in form.graduation_year.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-2 mb-3">
             {{ form.cgpa.label(class_="form-label") }}
-            {{ form.cgpa(class_="form-control") }}
+            {{ form.cgpa(class_="form-control", min="0", max="10", step="0.01") }}
+            {% for err in form.cgpa.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
 
@@ -44,7 +46,7 @@
           </div>
           <div class="col-md-6 mb-3">
             {{ form.resume.label(class_="form-label") }}
-            {{ form.resume(class_="form-control") }}
+            {{ form.resume(class_="form-control", accept=".pdf,application/pdf") }}
             {% for err in form.resume.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -80,4 +82,3 @@
     </div>
   </div>
 {% endblock %}
-
