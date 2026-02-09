@@ -5,7 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 
@@ -15,6 +15,21 @@ from ..models import Application, Company, Drive, Notification, Placement, Stude
 from .forms import StudentProfileForm
 
 bp = Blueprint("student", __name__)
+
+
+@bp.before_request
+def _student_guard():
+    # If a student gets deactivated/blacklisted after login, invalidate the session.
+    if not current_user.is_authenticated:
+        return None
+    if current_user.role != "student":
+        abort(403)
+
+    student = current_user.student_profile
+    if student is None or not current_user.is_active or student.is_blacklisted:
+        logout_user()
+        flash("Student access revoked. Contact the placement cell.", "danger")
+        return redirect(url_for("auth.login"))
 
 
 @bp.get("/")

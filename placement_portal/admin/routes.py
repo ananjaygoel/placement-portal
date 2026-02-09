@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
 from sqlalchemy import or_
 
 from ..decorators import roles_required
@@ -24,6 +24,14 @@ def _redirect_next(default_url: str):
     if not next_url.startswith("/"):
         return redirect(default_url)
     return redirect(next_url)
+
+@bp.before_request
+def _admin_guard():
+    # Extra guard even if a route forgets @roles_required.
+    if not current_user.is_authenticated:
+        return None
+    if current_user.role != "admin":
+        abort(403)
 
 
 @bp.get("/")
